@@ -1,0 +1,161 @@
+@extends('layouts.main')
+@section('title','Pengeluaran')
+@section('container')
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div id="toastr-demo" class="panel">
+        <div class="panel-body">
+            <!-- CONTEXTUAL -->
+            <h4 style="margin-left: 3%">Pengeluaran</h4>
+            <p class="demo-button">
+                    <button type="button"
+                    class="btn btn-primary btn-toastr pull-right"
+                    data-toggle="modal"
+                    data-target="#data" style="margin-right: 3%">Tambah</button>
+            </p>
+            <div class="container">
+                <div class="modal fade" id="data" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="data">Pengeluaran</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('pengeluaran.post') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="tanggal" value="{{ $now }}">
+                                {{-- <div id="datepicker" class="form-group" inline="true">
+                                    <label for="tanggal" class="col-form-label">Tanggal</label>
+                                    <input class="form-control" type="text" id="datepicker" name="tanggal">
+                                </div> --}}
+                                <div class="form-group">
+                                  <label for="deskripsi" class="col-form-label">Uraian</label>
+                                  <input class="form-control" type="hidden" id="deskripsi" name="deskripsi" value="{{ old('deskripsi') }}">
+                                  <textarea class="form-control" rows="4" name="deskripsi" id="deskripsi"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jumlah" class="col-form-label">Nominal</label>
+                                    <input class="form-control" type="text" id="jumlah" name="pengeluaran" value="{{ old('pengeluaran') }}">
+                                </div>
+                                <input type="hidden" name="status" value="pengeluaran">
+                                {{-- <div class="form-group">
+                                    <label for="status" class="col-form-label">Status</label>
+                                    <input class="form-control" type="text" id="status" name="status" value="{{ old('status') }}">
+                                </div> --}}
+                                <div class="form-group">
+                                    <label class="col-form-label" for="foto">Nota</label>
+                                    <input type="file" class="form-control" id="foto" name="foto" required>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Keluar</button>
+                                    <button type="submit" class="btn btn-primary">Kirim</button>
+                                  </div>
+                              </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <br>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Deskripsi</th>
+                            <th>Nominal</th>
+                            <th>Nota</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($item as $i => $dt)
+                        <tr>
+                            <td>{{ ++$i }}</td>
+                            <td>{{ date('l d M Y H:i:s',strtotime($dt->tanggal)) }}</td>
+                            <td>{{ $dt->deskripsi }}</td>
+                            <td>Rp. {{ number_format($dt->pengeluaran) }}</td>
+                            <td><img src="{{ url('foto/' . $dt->foto) }}"
+                                width="80px">
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="col-sm-1">
+                                        <button class="badge bg-warning" style="border: 0ch"
+                                        data-toggle="modal"
+                                        data-target="#modalPengeluaran{{ $dt->id }}">
+                                        <i class="fa fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <form action="{{ route('pengeluaran.delete', $dt->id) }}" method="post">
+                                            @csrf
+                                            @method('delete')
+                                            <button class="submit badge bg-danger" style="border: 0ch"><i class="fa fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <!-- END CONTEXTUAL -->
+        </div>
+    </div>
+</div>
+@foreach ($item as $i => $dt)
+    <div class="container">
+        <div class="modal fade" id="modalPengeluaran{{ $dt->id }}" aria-labelledby="modalLabel" tabindex="-1">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="data">{{ $title }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('pengeluaran.update', $dt->id) }}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="tanggal" value="{{ $dt->tanggal }}">
+                        {{-- <div id="datepicker" class="form-group" inline="true">
+                            <label for="tanggal" class="col-form-label">Tanggal</label>
+                            <input class="form-control" type="text" id="datepicker" name="tanggal">
+                        </div> --}}
+                        <div class="form-group">
+                          <label for="deskripsi" class="col-form-label">Uraian</label>
+                          <input class="form-control" type="hidden" id="deskripsi" name="deskripsi" value="{{ $dt->deskripsi }}">
+                          <textarea class="form-control" rows="4" name="deskripsi" id="deskripsi"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="pengeluaran" class="col-form-label">Nominal</label>
+                            <input class="form-control" type="text" id="pengeluaran" name="pengeluaran" value="{{ $dt->pengeluaran }}">
+                        </div>
+                        <input type="hidden" name="status" value="pengeluaran">
+                        {{-- <div class="form-group">
+                            <label for="status" class="col-form-label">Status</label>
+                            <input class="form-control" type="text" id="status" name="status" value="{{ old('status') }}">
+                        </div> --}}
+                        <div class="form-group">
+                            <label class="col-form-label" for="foto">Nota</label>
+                            <input type="file" class="form-control" id="foto" name="foto" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Keluar</button>
+                            <button type="submit" class="btn btn-primary">Kirim</button>
+                          </div>
+                      </form>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+@endforeach
+@endsection
+
